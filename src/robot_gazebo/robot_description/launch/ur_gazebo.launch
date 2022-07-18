@@ -1,0 +1,24 @@
+<?xml version="1.0"?>	
+<!-- ur_gazebo.launch  load Gazebo world and spawn ur5e model -->
+<launch>
+    <!-- Gazebo world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <!-- <arg name="world_name" default="worlds/empty.world"/> -->
+        <arg name="world_name" value="$(find robot_description)/world/my_world.world"/>
+    </include>
+
+    <!-- parse xacro file into urdf and upload urdf to parameter server -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find robot_description)/urdf/ur5e_robot.urdf.xacro'" />
+    
+    <!-- spawn robot in gazebo -->
+    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -z 0.1" respawn="false" output="screen" />
+
+    <!-- We do not have a robot connected, so publish fake joint states -->
+    <node name="joint_state_publisher_gui" pkg="joint_state_publisher" type="joint_state_publisher"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+    <!-- run rviz -->
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_description)/config/my_rviz.rviz" required="true"/> -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_description)/config/my_rviz_without_moveit.rviz" required="true"/>
+</launch>
